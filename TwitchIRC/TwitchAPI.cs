@@ -19,11 +19,12 @@ namespace TwitchIRC
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.twitchtv.v3+json"));
                 HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Post, "relativeAddress");
                 Task<string> response = client.GetStringAsync(link);
-                Console.WriteLine("Hi"); 
                 string responseBody = await response;
                 return JObject.Parse(responseBody);
             }
         }
+
+
 
     }
 }

@@ -17,7 +17,11 @@ namespace TwitchIRC
         static void Main(string[] args)
         {
             Application.EnableVisualStyles();
-            Application.Run(new ChatWindow());
+            try
+            {
+                Application.Run(new ChatWindow());
+            }
+            catch (Exception) { }
         }
     }
 }
