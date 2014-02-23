@@ -101,7 +101,7 @@ namespace TwitchIRC
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            var response = await api.GetJSONAsync("https://api.twitch.tv/kraken/streams?limit=1&offset=0/");
+            var response = await api.GetStreamsInfoJSONAsync(1);
             var r = (response["streams"][0]);
             //var text = r.ToString();
             var text = new StringBuilder().AppendFormat("Najpopularniejszy stream: \n{0} - {1} \n ({2})", r["channel"]["name"].ToString(), r["channel"]["status"].ToString(), r["viewers"]).ToString();

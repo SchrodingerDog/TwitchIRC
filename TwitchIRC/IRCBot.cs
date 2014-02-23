@@ -74,11 +74,9 @@ namespace TwitchIRC
 
         private void IRCWork()
         {
-            while (!Joined) { }
-            //TwitchAPI api = new TwitchAPI();
-            //var response = await api.GetFromLink("https://api.twitch.tv/kraken");
-            //Console.WriteLine(response["_links"]);
+            while (!Joined) ;
             bool running = true;
+            SendData("PRIVMSG", "" + config.data["channel"] + " :Siemanko wszystkim, DogeIRCBot wchodzi na czat!");
             string data;
             while (running)
             {

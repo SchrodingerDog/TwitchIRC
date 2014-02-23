@@ -12,7 +12,7 @@ namespace TwitchIRC
 {
     class TwitchAPI
     {
-        public async Task<JObject> GetJSONAsync(string link)
+        private async Task<JObject> GetJSONAsync(string link)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -24,8 +24,21 @@ namespace TwitchIRC
             }
         }
 
+        public async Task<JObject> GetBaseTwitchJSONAsync() {
+            return await GetJSONAsync("https://api.twitch.tv/kraken/");
+        }
 
+        public async Task<JObject> GetChannelsInfoJSONAsync(string channel)
+        {
+            return await GetJSONAsync("https://api.twitch.tv/kraken/channels/"+channel);
+        }
 
+        public async Task<JObject> GetStreamsInfoJSONAsync(int limit, int offset = 0)
+        {
+            var json = await GetBaseTwitchJSONAsync();
+            var streams = json["_links"]["streams"].ToString();
+            return await GetJSONAsync(String.Format("{0}?{1}&{2}", streams, limit, offset));
+        }
     }
 }
 
