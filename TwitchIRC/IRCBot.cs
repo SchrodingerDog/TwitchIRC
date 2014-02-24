@@ -23,11 +23,9 @@ namespace TwitchIRC
         StreamWriter sw = null;
         Thread WorkThread;
         private Dictionary<string, Action<string, string>> gFunc;
-        //public IRCBot(IRCConfig config, ref Dictionary<string, Control> components)
         public IRCBot(IRCConfig config)
         {
             this.config = config;
-            //this.Components = components;
         }
 
         public IRCBot(IRCConfig config, Dictionary<string, Action<string, string>> gFunc)
@@ -179,7 +177,7 @@ namespace TwitchIRC
         
         private void WriteMessage(string message, string name="")
         {
-            gFunc["add"](message, name);
+            //gFunc["add"](message, name);
         }
 
         private void sendKonamiCode(string channel)

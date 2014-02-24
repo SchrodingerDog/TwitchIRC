@@ -22,6 +22,8 @@ namespace TwitchIRC
                 Application.Run(new ChatWindow());
             }
             catch (InvalidOperationException) { }
+
+            catch (TargetInvocationException) { }
         }
     }
 }

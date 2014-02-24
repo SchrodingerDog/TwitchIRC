@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,20 +17,29 @@ namespace TwitchIRC
         IRCBot bot;
         TwitchAPI api;
         Dictionary<string, Action<string, string>> gFunc = new Dictionary<string, Action<string, string>>();
+        public RichTextBox textBox1 = new RichTextBox();
+        IRCConfig config = null;
         public ChatWindow()
         {
             api = new TwitchAPI();
             gFunc.Add("add", AddTextToTextBox);
-            var config = ConfigBase.ReadConfig(@"config.xml", new IRCConfig()) as IRCConfig;
+            config = ConfigBase.ReadConfig(@"config.xml", new IRCConfig()) as IRCConfig;
             bot = new IRCBot(config, gFunc);
 
             InitializeComponent();
-            
+
             bot.Connect();
         }
 
         public void AppendWithColor(RichTextBox box, string text, Color color)
         {
+            if (box.Lines.Length > 100)
+            {
+                Console.WriteLine("Ok, dotarłem do 100 i mam więcej");
+                box.Select(0, box.GetFirstCharIndexFromLine(1)); // select the first line
+                box.SelectedText = "";
+                Console.WriteLine("teraz ilość linii to: " + box.Lines.Length);
+            }
             box.SelectionStart = box.TextLength;
             box.SelectionLength = 0;
 
@@ -85,7 +95,27 @@ namespace TwitchIRC
             }
             else
             {
-                label1.Text = text;
+                textBox2.Text = text;
+            }
+        }
+
+        delegate void ImageInPB(Image img);
+
+        private void SetImageInPB(Image img)
+        {
+            if (this.textBox1.InvokeRequired)
+            {
+                try
+                {
+                    ImageInPB d = new ImageInPB(SetImageInPB);
+                    this.Invoke(d, new object[] { img });
+                }
+                catch (ObjectDisposedException) { }
+
+            }
+            else
+            {
+                pictureBox1.Image = img;
             }
         }
 
@@ -101,12 +131,18 @@ namespace TwitchIRC
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            var response = await api.GetStreamsInfoJSONAsync(1);
-            var r = (response["streams"][0]);
-            //var text = r.ToString();
-            var text = new StringBuilder().AppendFormat("Najpopularniejszy stream: \n{0} - {1} \n ({2})", r["channel"]["name"].ToString(), r["channel"]["status"].ToString(), r["viewers"]).ToString();
-            //var text = "Najpopularniejszy stream: \n{0} - {1} ({2})", r["name"].ToString(), r["status"].ToString(), response["viewers"];
-            SetTextInLabel(text);
+            JObject response = null;
+            var image = await api.GetEmotesAsync(config.Data["channel"].Remove(0, 1)).ContinueWith(t =>
+            {
+                response = t.Result;
+                var r = new Random();
+                return api.GetImageFromUrlAsync(t.Result["emoticons"][r.Next(0, t.Result["emoticons"].Count())]["url"].ToString());
+                
+            }).Unwrap();
+
+            SetImageInPB(image);
+            
+            SetTextInLabel(response.ToString());
         }
     }
 }
