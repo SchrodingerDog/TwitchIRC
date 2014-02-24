@@ -13,7 +13,6 @@ namespace TwitchIRC
 {
     public partial class ChatWindow : Form
     {
-        IRCConfig config;
         IRCBot bot;
         TwitchAPI api;
         Dictionary<string, Action<string, string>> gFunc = new Dictionary<string, Action<string, string>>();
@@ -21,8 +20,9 @@ namespace TwitchIRC
         {
             api = new TwitchAPI();
             gFunc.Add("add", AddTextToTextBox);
-            config = IRCConfig.ReadConfig(@"config.xml");
+            var config = ConfigBase.ReadConfig(@"config.xml", new IRCConfig()) as IRCConfig;
             bot = new IRCBot(config, gFunc);
+
             InitializeComponent();
             
             bot.Connect();

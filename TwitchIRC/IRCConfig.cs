@@ -7,27 +7,39 @@ using System.Xml.Linq;
 
 namespace TwitchIRC
 {
-    internal class IRCConfig
+    public class ConfigBase
     {
-        public Dictionary<string, string> data = new Dictionary<string, string>
+        public virtual Dictionary<string, string> Data { get; set; }
+        public static ConfigBase ReadConfig(string path, ConfigBase c)
+        {
+            XElement root = XElement.Load(path);
+            //IRCConfig config = new IRCConfig();
+            IEnumerable<XElement> elements = from el in root.Elements("config") where (string)el.Attribute("type") != "" select el;
+            foreach (XElement el in elements)
+            {
+                c.Data[el.Attribute("type").Value] = el.Value;
+            }
+            return c;
+        }
+    }
+
+    public class IRCConfig : ConfigBase
     {
+        private Dictionary<string, string> _d = new Dictionary<string, string>{
         { "server", null },
         { "port", null },
         { "nick", null },
         { "name", null },
         { "oauth", null },
-        { "channel", null }
-    };
-        public static IRCConfig ReadConfig(string url)
+        { "channel", null }};
+        public override Dictionary<string, string> Data
         {
-            XElement root = XElement.Load(url);
-            IRCConfig config = new IRCConfig();
-            IEnumerable<XElement> elements = from el in root.Elements("config") where (string)el.Attribute("type") != "" select el;
-            foreach (XElement el in elements)
+            get
             {
-                config.data[el.Attribute("type").Value] = el.Value;
+                return _d;
             }
-            return config;
+            set { _d = value; }
         }
+        //public override Dictionary<string, string> Data = 
     }
 }

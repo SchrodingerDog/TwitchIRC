@@ -40,7 +40,7 @@ namespace TwitchIRC
         {
             try
             {
-                IRCConnection = new TcpClient(config.data["server"], int.Parse(config.data["port"]));
+                IRCConnection = new TcpClient(config.Data["server"], int.Parse(config.Data["port"]));
             }
             catch (SocketException)
             {
@@ -52,22 +52,22 @@ namespace TwitchIRC
                 ns = IRCConnection.GetStream();
                 sr = new StreamReader(ns);
                 sw = new StreamWriter(ns);
-                SendData("PASS", config.data["oauth"]);
-                SendData("USER", config.data["nick"] + config.data["name"]);
-                SendData("NICK", config.data["nick"]);
+                SendData("PASS", config.Data["oauth"]);
+                SendData("USER", config.Data["nick"] + config.Data["name"]);
+                SendData("NICK", config.Data["nick"]);
             }
             catch (Exception)
             {
                 Console.WriteLine("Communication error");
             }
-            JoinChannel(config.data["channel"]);
+            JoinChannel(config.Data["channel"]);
             WorkThread = new Thread(() => { IRCWork(); });
             WorkThread.Start();
         }
 
         private void JoinChannel(string p)
         {
-            SendData("JOIN", config.data["channel"]);
+            SendData("JOIN", config.Data["channel"]);
             Joined = true;
             Console.WriteLine("Joined");
         }
@@ -76,7 +76,7 @@ namespace TwitchIRC
         {
             while (!Joined) ;
             bool running = true;
-            SendData("PRIVMSG", "" + config.data["channel"] + " :Siemanko wszystkim, DogeIRCBot wchodzi na czat!");
+            SendData("PRIVMSG", "" + config.Data["channel"] + " :Siemanko wszystkim, DogeIRCBot wchodzi na czat!");
             string data;
             while (running)
             {
@@ -107,16 +107,16 @@ namespace TwitchIRC
                 switch (command)
                 {
                     case ":!wow":
-                        SendData("PRIVMSG", "" + config.data["channel"] + " :Kappa wow wow, much dog such doge Kappa");
+                        SendData("PRIVMSG", "" + config.Data["channel"] + " :Kappa wow wow, much dog such doge Kappa");
                         break;
                     case ":!hi":
-                        SendData("PRIVMSG", "" + config.data["channel"] + " :HI! I'm bot Doge");
+                        SendData("PRIVMSG", "" + config.Data["channel"] + " :HI! I'm bot Doge");
                         break;
                     case ":!lolking":
-                        SendData("PRIVMSG", "" + config.data["channel"] + " :Oh, i see you written !lolking Kappa");
+                        SendData("PRIVMSG", "" + config.Data["channel"] + " :Oh, i see you written !lolking Kappa");
                         break;
                     case ":!runes":
-                        SendData("PRIVMSG", "" + config.data["channel"] + " :Oh, i see you written !runes Kappa");
+                        SendData("PRIVMSG", "" + config.Data["channel"] + " :Oh, i see you written !runes Kappa");
                         break;
                 }
             }
