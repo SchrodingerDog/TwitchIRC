@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -59,15 +60,18 @@ namespace TwitchIRC
             }).Unwrap();
         }
 
-        public async Task<Image> GetImageFromUrlAsync(string url)
+        public async Task<Image> GetImageFromUrlAsync(string url, bool subscriberonly, string channel = "")
         {
             using (HttpClient client = new HttpClient())
             {
-                Task<Stream> response = client.GetStreamAsync(url);
-                Stream responseBody = await response;
-                return Image.FromStream(responseBody);
+                using (Stream responseBody = await client.GetStreamAsync(url))
+                {
+                    Image img = Image.FromStream(responseBody);
+                    return img;
+
+                }
             }
-            
+
             //HttpWebRequest httpWebRequest = (HttpWebRequest)HttpWebRequest.Create(url);
 
             //using (HttpWebResponse httpWebReponse = (HttpWebResponse)httpWebRequest.GetResponse())
@@ -77,6 +81,11 @@ namespace TwitchIRC
             //        return Image.FromStream(stream);
             //    }
             //}
+        }
+        public void SaveImage(Image img, string name) {
+            string path = "emoticons/";
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+            img.Save(path + name, ImageFormat.Jpeg);
         }
     }
 }

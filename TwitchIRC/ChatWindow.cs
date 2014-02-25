@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -131,18 +132,21 @@ namespace TwitchIRC
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            JObject response = null;
-            var image = await api.GetEmotesAsync(config.Data["channel"].Remove(0, 1)).ContinueWith(t =>
+            await api.GetEmotesAsync(config.Data["channel"].Remove(0, 1)).ContinueWith(t =>
             {
-                response = t.Result;
-                var r = new Random();
-                return api.GetImageFromUrlAsync(t.Result["emoticons"][r.Next(0, t.Result["emoticons"].Count())]["url"].ToString());
+                foreach (var item in t.Result["emoticons"])
+                {
+                    new System.Threading.Thread(() =>
+                    {
+                        string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/"));
+                        api.GetImageFromUrlAsync(item["url"].ToString(),false).ContinueWith((r=>{
+                                api.SaveImage(r.Result, name);
+                            }));
+                        
+                    }).Start();
+                }
                 
-            }).Unwrap();
-
-            SetImageInPB(image);
-            
-            SetTextInLabel(response.ToString());
-        }
+            });
+         }
     }
 }
