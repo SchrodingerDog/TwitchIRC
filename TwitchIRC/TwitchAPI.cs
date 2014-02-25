@@ -16,6 +16,13 @@ namespace TwitchIRC
 {
     class TwitchAPI
     {
+        IRCConfig config = null;
+
+        public TwitchAPI(IRCConfig config)
+        {
+            this.config = config;
+        }
+
         private async Task<JObject> GetJSONAsync(string link)
         {
             using (HttpClient client = new HttpClient())
@@ -71,22 +78,30 @@ namespace TwitchIRC
 
                 }
             }
-
-            //HttpWebRequest httpWebRequest = (HttpWebRequest)HttpWebRequest.Create(url);
-
-            //using (HttpWebResponse httpWebReponse = (HttpWebResponse)httpWebRequest.GetResponse())
-            //{
-            //    using (Stream stream = httpWebReponse.GetResponseStream())
-            //    {
-            //        return Image.FromStream(stream);
-            //    }
-            //}
         }
         public void SaveImage(Image img, string name) {
             string path = "emoticons/";
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
             img.Save(path + name, ImageFormat.Jpeg);
         }
+
+        public void GetAndSaveEmotes() {
+            GetEmotesAsync(config.Data["channel"].Remove(0, 1)).ContinueWith(t =>
+            {
+                foreach (var item in t.Result["emoticons"])
+                {
+                    new System.Threading.Thread(() =>
+                    {
+                        string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/"));
+                        GetImageFromUrlAsync(item["url"].ToString(), false).ContinueWith((r =>
+                        {
+                            SaveImage(r.Result, name);
+                        }));
+
+                    }).Start();
+                }
+            });
+        } 
     }
 }
 
