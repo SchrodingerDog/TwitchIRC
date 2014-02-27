@@ -131,21 +131,6 @@ namespace TwitchIRC
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            //await api.GetEmotesAsync(config.Data["channel"].Remove(0, 1)).ContinueWith(t =>
-            //{
-            //    foreach (var item in t.Result["emoticons"])
-            //    {
-            //        new System.Threading.Thread(() =>
-            //        {
-            //            string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/"));
-            //            api.GetImageFromUrlAsync(item["url"].ToString(),false).ContinueWith((r=>{
-            //                    api.SaveImage(r.Result, name);
-            //                }));
-
-            //        }).Start();
-            //    }
-
-            //});
             api.GetAndSaveEmotes();
         }
     }
