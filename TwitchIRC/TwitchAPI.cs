@@ -92,8 +92,6 @@ namespace TwitchIRC
         /// Pobiera obraz i zapamiętuje go w obiekcie typu Image
         /// </summary>
         /// <param name="url">URL z którego ma być pobrany obraz</param>
-        /// <param name="subscriberonly">Określa czy emotikon jest tylko dla subskrybentów i ma być umieszczony w folderze kanału</param>
-        /// <param name="channel">Kanał dla którego ten emotikon istnieje</param>
         /// <returns></returns>
         public async Task<Image> GetImageFromUrlAsync(string url)
         {
@@ -112,46 +110,96 @@ namespace TwitchIRC
         /// </summary>
         /// <param name="img">Obraz do zapisania</param>
         /// <param name="name">nazwa pod którą ma być obraz zapisany</param>
-        public void SaveImage(Image img, string name, bool subscriberonly, string channel = "") {
+        /// <param name="subscriberonly">Określa czy emotikon jest tylko dla subskrybentów i ma być umieszczony w folderze kanału</param>
+        /// <param name="channel">Kanał dla którego ten emotikon istnieje</param>
+        public void SaveImage(Image img, string name, bool subscriberonly, string channel = "")
+        {
             string path = "emoticons/";
             if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
             if (!File.Exists(path + "eConfig.xml")) { XDocument.Parse("<emotes></emotes>").Save(path + "eConfig.xml", SaveOptions.None); }
             XElement toAdd = null;
             try
             {
-                toAdd = XElement.Parse(String.Format("<emote src = \"{0}\" subonly = \"{1}\" channel = \"{2}\" />", path + name, subscriberonly, channel));
+                toAdd = XElement.Parse(String.Format("<emote> <src> {0} </src> <subonly> {1} </subonly> <channel> {2} </channel> <today> {3} </today> </emote>", path + name, subscriberonly, channel, DateTime.Now));
+
             }
-            catch (XmlException ex) {
+            catch (XmlException ex)
+            {
                 Console.WriteLine(ex.StackTrace);
             }
-            pendingChanges.Add(toAdd);
-            img.Save(path + name, ImageFormat.Png);
+            if (!CheckExistance(toAdd))
+            {
+                pendingChanges.Add(toAdd);
+            }
+            if (CheckNeeding(toAdd) || !File.Exists(path+name))
+            {
+                img.Save(path + name, ImageFormat.Png);
+            }
+        }
+
+        private bool CheckNeeding(XElement toAdd)
+        {
+            bool sub = bool.Parse(toAdd.Element("subonly").Value);
+            var date = toAdd.Element("today").Value;
+            var date_date = DateTime.Parse(date);
+            if (sub)
+            {
+                if (DateTime.Now >= date_date.AddDays(30))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (DateTime.Now >= date_date.AddDays(60))
+                {
+                    return true;
+                } 
+            }
+            return false;
+        }
+
+        private bool CheckExistance(XElement toAdd)
+        {
+            var xml = XElement.Load("emoticons/eConfig.xml");
+            var element = from child in xml.Elements() where child.Element("src").Value == toAdd.Element("src").Value select child;
+            if (element.Count() > 0) return true;
+            return false;
         }
         /// <summary>
         /// Połączenie GetImageFromUrlAsync i SaveImage
         /// </summary>
-        public void GetAndSaveEmotes() {
+        public void GetAndSaveEmotes()
+        {
             GetEmotesAsync(config.Data["channel"].Remove(0, 1)).ContinueWith(t =>
             {
                 foreach (var item in t.Result["emoticons"])
                 {
                     new System.Threading.Thread(() =>
                     {
-                        string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/")+1);
+                        string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/") + 1);
                         GetImageFromUrlAsync(item["url"].ToString()).ContinueWith((r =>
                         {
-                            SaveImage(r.Result, name, false);
+                            SaveImage(r.Result, name, bool.Parse(item["subscriber_only"].ToString()), config.Data["channel"]);
                         }));
 
                     }).Start();
                 }
             }).ContinueWith(r =>
             {
-                MakeChanges(pendingChanges);
+                try
+                {
+                    MakeChanges(pendingChanges);
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine(ex.StackTrace);
+                }
             });
         }
 
-        private void MakeChanges(List<XElement> pendingChanges) {
+        private void MakeChanges(List<XElement> pendingChanges)
+        {
             XElement xml = XElement.Load("emoticons/eConfig.xml", LoadOptions.None);
             foreach (var item in pendingChanges)
             {
@@ -161,9 +209,9 @@ namespace TwitchIRC
         }
     }
 }
-///TODO
-///1.XML dla pobierania emotków, by miały jakiś okres w którym są ważne, długi dla global, krótszy dla dub-only
-///2.Jakieś fajne UI
-///3.Wybór channela
-///4.Okno konfiguracji
-///5.Może jakaś elastyczna funkcja do tych invoke'ów
+//TODO
+//1.XML dla pobierania emotków, by miały jakiś okres w którym są ważne, długi dla global, krótszy dla dub-only
+//2.Jakieś fajne UI
+//3.Wybór channela
+//4.Okno konfiguracji
+//5.Może jakaś elastyczna funkcja do tych invoke'ów

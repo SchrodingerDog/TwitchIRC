@@ -7,9 +7,21 @@ using System.Xml.Linq;
 
 namespace TwitchIRC
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ConfigBase
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public virtual Dictionary<string, string> Data { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="c"></param>
+        /// <returns></returns>
         public static ConfigBase ReadConfig(string path, ConfigBase c)
         {
             XElement root = XElement.Load(path);
@@ -22,7 +34,9 @@ namespace TwitchIRC
             return c;
         }
     }
-
+    /// <summary>
+    /// 
+    /// </summary>
     public class IRCConfig : ConfigBase
     {
         private Dictionary<string, string> _d = new Dictionary<string, string>{
@@ -32,6 +46,9 @@ namespace TwitchIRC
         { "name", null },
         { "oauth", null },
         { "channel", null }};
+        /// <summary>
+        /// 
+        /// </summary>
         public override Dictionary<string, string> Data
         {
             get

@@ -13,13 +13,22 @@ using System.Windows.Forms;
 
 namespace TwitchIRC
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public partial class ChatWindow : Form
     {
         IRCBot bot;
         TwitchAPI api;
         Dictionary<string, Action<string, string>> gFunc = new Dictionary<string, Action<string, string>>();
+        /// <summary>
+        /// 
+        /// </summary>
         public RichTextBox textBox1 = new RichTextBox();
         IRCConfig config = null;
+        /// <summary>
+        /// 
+        /// </summary>
         public ChatWindow()
         {
             gFunc.Add("add", AddTextToTextBox);
@@ -30,7 +39,12 @@ namespace TwitchIRC
 
             bot.Connect();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="box"></param>
+        /// <param name="text"></param>
+        /// <param name="color"></param>
         public void AppendWithColor(RichTextBox box, string text, Color color)
         {
             if (box.Lines.Length > 100)
@@ -129,7 +143,7 @@ namespace TwitchIRC
         [DllImport("user32.dll")]
         static extern bool HideCaret(IntPtr h);
 
-        private async void button1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
             api.GetAndSaveEmotes();
         }
