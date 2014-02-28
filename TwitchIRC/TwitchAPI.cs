@@ -19,6 +19,7 @@ namespace TwitchIRC
     class TwitchAPI
     {
         IRCConfig config = null;
+        List<XElement> pendingChanges = new List<XElement>();
         /// <summary>
         /// Konstruktor Api Twitcha, dostaje konfiguracje IRCa
         /// </summary>
@@ -94,7 +95,7 @@ namespace TwitchIRC
         /// <param name="subscriberonly">Określa czy emotikon jest tylko dla subskrybentów i ma być umieszczony w folderze kanału</param>
         /// <param name="channel">Kanał dla którego ten emotikon istnieje</param>
         /// <returns></returns>
-        public async Task<Image> GetImageFromUrlAsync(string url, bool subscriberonly, string channel = "")
+        public async Task<Image> GetImageFromUrlAsync(string url)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -111,14 +112,19 @@ namespace TwitchIRC
         /// </summary>
         /// <param name="img">Obraz do zapisania</param>
         /// <param name="name">nazwa pod którą ma być obraz zapisany</param>
-        public void SaveImage(Image img, string name) {
+        public void SaveImage(Image img, string name, bool subscriberonly, string channel = "") {
             string path = "emoticons/";
             if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
-            if (!File.Exists(path + "eConfig.xml")) { XDocument.Parse(
-                "<emotes>"+
-                "<hi />"+
-                "</emotes>")
-                .Save(path + "eConfig.xml", SaveOptions.None); }
+            if (!File.Exists(path + "eConfig.xml")) { XDocument.Parse("<emotes></emotes>").Save(path + "eConfig.xml", SaveOptions.None); }
+            XElement toAdd = null;
+            try
+            {
+                toAdd = XElement.Parse(String.Format("<emote src = \"{0}\" subonly = \"{1}\" channel = \"{2}\" />", path + name, subscriberonly, channel));
+            }
+            catch (XmlException ex) {
+                Console.WriteLine(ex.StackTrace);
+            }
+            pendingChanges.Add(toAdd);
             img.Save(path + name, ImageFormat.Png);
         }
         /// <summary>
@@ -131,16 +137,28 @@ namespace TwitchIRC
                 {
                     new System.Threading.Thread(() =>
                     {
-                        string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/"));
-                        GetImageFromUrlAsync(item["url"].ToString(), false).ContinueWith((r =>
+                        string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/")+1);
+                        GetImageFromUrlAsync(item["url"].ToString()).ContinueWith((r =>
                         {
-                            SaveImage(r.Result, name);
+                            SaveImage(r.Result, name, false);
                         }));
 
                     }).Start();
                 }
+            }).ContinueWith(r =>
+            {
+                MakeChanges(pendingChanges);
             });
-        } 
+        }
+
+        private void MakeChanges(List<XElement> pendingChanges) {
+            XElement xml = XElement.Load("emoticons/eConfig.xml", LoadOptions.None);
+            foreach (var item in pendingChanges)
+            {
+                xml.Add(item);
+            }
+            xml.Save("emoticons/eConfig.xml", SaveOptions.None);
+        }
     }
 }
 ///TODO
