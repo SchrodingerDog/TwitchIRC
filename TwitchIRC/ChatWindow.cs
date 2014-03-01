@@ -21,7 +21,7 @@ namespace TwitchIRC
     {
         IRCBot bot;
         TwitchAPI api;
-        Dictionary<string, Action<string, string>> gFunc = new Dictionary<string, Action<string, string>>();
+        
         /// <summary>
         /// 
         /// </summary>
@@ -32,12 +32,11 @@ namespace TwitchIRC
         /// </summary>
         public ChatWindow()
         {
-            gFunc.Add("add", AddTextToTextBox);
             config = ConfigBase.ReadConfig(@"config.xml", new IRCConfig()) as IRCConfig;
-            bot = new IRCBot(config, gFunc);
-            api = new TwitchAPI(config);
+            bot = new IRCBot(config);
+            api = new TwitchAPI(config, this);
             InitializeComponent();
-
+            //this.pictureBox1.Draggable(true);
             bot.Connect();
         }
         /// <summary>
@@ -63,82 +62,7 @@ namespace TwitchIRC
             box.SelectionColor = box.ForeColor;
         }
         
-        delegate void TextToTextBox(string message, string name);
-
-        private void AddTextToTextBox(string message, string name)
-        {
-            if (this.textBox1.InvokeRequired)
-            {
-                try
-                {
-                    TextToTextBox d = new TextToTextBox(AddTextToTextBox);
-                    this.Invoke(d, new object[] { message, name });
-                }
-                catch (ObjectDisposedException) { }
-
-            }
-            else
-            {
-                if (name != "")
-                {
-                    AppendWithColor(textBox1, name, Color.LimeGreen);
-                    AppendWithColor(textBox1, ": " + message + "\n", Color.Blue);
-
-                    this.textBox1.SelectionStart = this.textBox1.Text.Length;
-                    this.textBox1.ScrollToCaret();
-                    this.textBox1.Refresh();
-                }
-                else
-                {
-                    AppendWithColor(textBox1, message + "\n", Color.Magenta);
-                }
-            }
-        }
-        delegate void TextInLabel(string text);
-
-        private void SetTextInLabel(string text)
-        {
-            if (this.textBox1.InvokeRequired)
-            {
-                try
-                {
-                    TextInLabel d = new TextInLabel(SetTextInLabel);
-                    this.Invoke(d, new object[] { text });
-                }
-                catch (ObjectDisposedException) { }
-
-            }
-            else
-            {
-                textBox2.Text = text;
-            }
-        }
-
-        private void SetInLabel(string text) {
-            textBox2.Text = text;
-        }
-
-        delegate void ImageInPB(Image img);
-
-        private void SetImageInPB(Image img)
-        {
-            if (this.textBox1.InvokeRequired)
-            {
-                try
-                {
-                    ImageInPB d = new ImageInPB(SetImageInPB);
-                    this.Invoke(d, new object[] { img });
-                }
-                catch (ObjectDisposedException) { }
-
-            }
-            else
-            {
-                pictureBox1.Image = img;
-            }
-        }
-
-
+        
 
         private void textBox1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -158,11 +82,14 @@ namespace TwitchIRC
 
             try
             {
-                
-                //typeof(ChatWindow).GetMethod("SetInLabel").Invoke(this, new [] {"Done"});
-                SetTextInLabel("Done");
+                this.InvokeIfRequired(text => { textBox2.Text = text; }, "Done");
             }
             catch (TargetInvocationException) { Console.WriteLine("Złapałem ten głupi wyjątek"); }
+            this.InvokeIfRequired(img =>
+            {
+                this.pictureBox1.Image = img;
+            }, Image.FromFile(@"images.jpg"));
         }
+
     }
 }

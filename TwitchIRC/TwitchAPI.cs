@@ -19,7 +19,9 @@ namespace TwitchIRC
     class TwitchAPI
     {
         IRCConfig config = null;
-        List<XElement> pendingChanges = new List<XElement>();
+        List<XElement> pendingChanges = new List<XElement>(112);
+        private ChatWindow chatWindow;
+        //List<XElement> pendingChanges = new List<XElement>();
         /// <summary>
         /// Konstruktor Api Twitcha, dostaje konfiguracje IRCa
         /// </summary>
@@ -27,6 +29,13 @@ namespace TwitchIRC
         public TwitchAPI(IRCConfig config)
         {
             this.config = config;
+        }
+
+        public TwitchAPI(IRCConfig config, ChatWindow chatWindow)
+        {
+            // TODO: Complete member initialization
+            this.config = config;
+            this.chatWindow = chatWindow;
         }
         /// <summary>
         /// Prywatna funkcja, pobiera ona JSON z strony i zwraca go jako obiekt JObject
@@ -183,6 +192,9 @@ namespace TwitchIRC
             foreach (var item in result["emoticons"])
             {
                 string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/") + 1);
+                chatWindow.InvokeIfRequired(text => { 
+                    chatWindow.textBox2.Text = (text+"\n"); 
+                }, name);
                 await GetImageFromUrlAsync(item["url"].ToString()).ContinueWith((t) => {
                     SaveImage(t.Result, name, bool.Parse(item["subscriber_only"].ToString()), config.Data["channel"]);
                 });
@@ -198,33 +210,6 @@ namespace TwitchIRC
                 Console.WriteLine(ex.StackTrace);
             }
 
-
-            //GetEmotesAsync(config.Data["channel"].Remove(0, 1)).ContinueWith(t =>
-            //{
-            //    foreach (var item in t.Result["emoticons"])
-            //    {
-            //        new System.Threading.Thread(() =>
-            //            {
-
-            //                string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/") + 1);
-            //                GetImageFromUrlAsync(item["url"].ToString()).ContinueWith((r =>
-            //                {
-            //                    SaveImage(r.Result, name, bool.Parse(item["subscriber_only"].ToString()), config.Data["channel"]);
-            //                }));
-
-            //            }).Start();
-            //    }
-            //}).ContinueWith(r =>
-            //{
-            //    try
-            //    {
-            //        MakeChanges(pendingChanges);
-            //    }
-            //    catch (IOException ex)
-            //    {
-            //        Console.WriteLine(ex.StackTrace);
-            //    }
-            //});
         }
 
         private void MakeChanges(List<XElement> pendingChanges)

@@ -10,9 +10,8 @@ namespace TwitchIRC
     /// <summary>
     /// 
     /// </summary>
-    public static class DraggableControl
+    public static class ControlExtensions
     {
-        // TKey is control to drag, TValue is a flag used while dragging
         private static Dictionary<Control, bool> draggables =
                    new Dictionary<Control, bool>();
         private static System.Drawing.Size mouseOffset;
@@ -69,9 +68,56 @@ namespace TwitchIRC
             {
                 // calculations of control's new position
                 System.Drawing.Point newLocationOffset = e.Location - mouseOffset;
-                ((Control)sender).Left += newLocationOffset.X;
-                ((Control)sender).Top += newLocationOffset.Y;
+
+                try
+                {
+                    ((Control)sender).Left += newLocationOffset.X;
+
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Console.WriteLine(ex.StackTrace);
+                    throw;
+                }
+                catch (Exception) { }
+                try
+                {
+
+                    ((Control)sender).Top += newLocationOffset.Y;
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Console.WriteLine(ex.StackTrace);
+                    throw;
+                }
+                catch (Exception) { }
             }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="action"></param>
+        public static void InvokeIfRequired(this Control control, Action action)
+        {
+            if (control.InvokeRequired)
+                control.Invoke(action);
+            else
+                action();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="control"></param>
+        /// <param name="action"></param>
+        /// <param name="parameter"></param>
+        public static void InvokeIfRequired<T>(this Control control, Action<T> action, T parameter)
+        {
+            if (control.InvokeRequired)
+                control.Invoke(action, parameter);
+            else
+                action(parameter);
         }
     }
 }
