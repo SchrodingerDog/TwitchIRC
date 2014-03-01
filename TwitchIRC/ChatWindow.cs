@@ -21,7 +21,7 @@ namespace TwitchIRC
     {
         IRCBot bot;
         TwitchAPI api;
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -61,8 +61,8 @@ namespace TwitchIRC
             box.AppendText(text);
             box.SelectionColor = box.ForeColor;
         }
-        
-        
+
+
 
         private void textBox1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -78,8 +78,6 @@ namespace TwitchIRC
             watch.Start();
             await api.GetAndSaveEmotes();
             watch.Stop();
-            System.Windows.Forms.MessageBox.Show(string.Format("Czas wykonania operacji = {0}ms", watch.ElapsedMilliseconds));
-
             try
             {
                 this.InvokeIfRequired(text => { textBox2.Text = text; }, "Done");
@@ -89,6 +87,9 @@ namespace TwitchIRC
             {
                 this.pictureBox1.Image = img;
             }, Image.FromFile(@"images.jpg"));
+            System.Windows.Forms.MessageBox.Show(string.Format("Czas wykonania operacji = {0}ms", watch.ElapsedMilliseconds));
+
+
         }
 
     }

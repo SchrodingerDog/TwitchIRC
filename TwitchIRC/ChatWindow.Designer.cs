@@ -37,6 +37,7 @@ namespace TwitchIRC
             this.panel1 = new System.Windows.Forms.Panel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -54,6 +55,7 @@ namespace TwitchIRC
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.progressBar1);
             this.panel1.Controls.Add(this.pictureBox1);
             this.panel1.Controls.Add(this.textBox2);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -81,6 +83,14 @@ namespace TwitchIRC
             this.textBox2.Size = new System.Drawing.Size(475, 353);
             this.textBox2.TabIndex = 0;
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(56, 161);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(364, 31);
+            this.progressBar1.TabIndex = 2;
+            this.progressBar1.Visible = false;
+            // 
             // ChatWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -103,5 +113,6 @@ namespace TwitchIRC
         private Panel panel1;
         public TextBox textBox2;
         public PictureBox pictureBox1;
+        public ProgressBar progressBar1;
     }
 }

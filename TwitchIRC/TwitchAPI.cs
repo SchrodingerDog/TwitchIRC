@@ -189,11 +189,16 @@ namespace TwitchIRC
         public async Task GetAndSaveEmotes()
         {
             var result = await GetEmotesAsync(config.Data["channel"].Remove(0, 1));
-            foreach (var item in result["emoticons"])
+            var emotes = result["emoticons"];
+            var eCount = emotes.Count();
+            PrepareProgressBar(eCount);
+            foreach (var item in emotes)
             {
                 string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/") + 1);
-                chatWindow.InvokeIfRequired(text => { 
-                    chatWindow.textBox2.Text = (text+"\n"); 
+                chatWindow.InvokeIfRequired(text =>
+                {
+                    //chatWindow.textBox2.Text += (text + "\n");
+                    chatWindow.progressBar1.Value++;
                 }, name);
                 await GetImageFromUrlAsync(item["url"].ToString()).ContinueWith((t) => {
                     SaveImage(t.Result, name, bool.Parse(item["subscriber_only"].ToString()), config.Data["channel"]);
@@ -204,12 +209,28 @@ namespace TwitchIRC
             try
             {
                 MakeChanges(pendingChanges);
+                chatWindow.InvokeIfRequired(t =>
+                {
+                    //chatWindow.textBox2.Text += (text + "\n");
+                    chatWindow.progressBar1.Visible = false;
+                }, 0);
             }
             catch (IOException ex)
             {
                 Console.WriteLine(ex.StackTrace);
             }
 
+        }
+
+        private void PrepareProgressBar(int eCount)
+        {
+            chatWindow.InvokeIfRequired(c =>
+            {
+                var pb = chatWindow.progressBar1;
+                pb.Maximum = c;
+                pb.Visible = true;
+                pb.Value = 0;
+            }, eCount);
         }
 
         private void MakeChanges(List<XElement> pendingChanges)

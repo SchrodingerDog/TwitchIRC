@@ -8,13 +8,26 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release_64|Any CPU = Release_64|Any CPU
+		Release_64|x64 = Release_64|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Debug|x64.Build.0 = Debug|Any CPU
+		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Release_64|Any CPU.ActiveCfg = Release_64|x64
+		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Release_64|Any CPU.Build.0 = Release_64|x64
+		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Release_64|x64.ActiveCfg = Release|Any CPU
+		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Release_64|x64.Build.0 = Release|Any CPU
+		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Release_64|x64.Deploy.0 = Release|Any CPU
 		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Release|x64.ActiveCfg = Release|x64
+		{DCF774CE-654D-4356-BEDF-9ACE0C1F0959}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
