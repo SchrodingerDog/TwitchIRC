@@ -79,6 +79,7 @@ namespace TwitchIRC
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.Draggable(true);
             // 
             // ChatWindow
             // 

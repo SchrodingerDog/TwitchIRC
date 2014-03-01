@@ -14,16 +14,17 @@ namespace TwitchIRC
 {
     class MainProgram
     {
+        [STAThread]
         static void Main(string[] args)
         {
             Application.EnableVisualStyles();
-            //try
-            //{
+            try
+            {
                 Application.Run(new ChatWindow());
-            //}
-            //catch (InvalidOperationException) { }
+            }
+            catch (InvalidOperationException ex) { Console.WriteLine(ex.StackTrace); }
 
-//            catch (TargetInvocationException) { }
+            catch (TargetInvocationException ex) { Console.WriteLine(ex.StackTrace); }
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,7 +62,7 @@ namespace TwitchIRC
             box.AppendText(text);
             box.SelectionColor = box.ForeColor;
         }
-
+        
         delegate void TextToTextBox(string message, string name);
 
         private void AddTextToTextBox(string message, string name)
@@ -113,6 +114,10 @@ namespace TwitchIRC
             }
         }
 
+        private void SetInLabel(string text) {
+            textBox2.Text = text;
+        }
+
         delegate void ImageInPB(Image img);
 
         private void SetImageInPB(Image img)
@@ -140,12 +145,24 @@ namespace TwitchIRC
             HideCaret(textBox1.Handle);
         }
 
-        [DllImport("user32.dll")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass"), DllImport("user32.dll")]
         static extern bool HideCaret(IntPtr h);
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
-            api.GetAndSaveEmotes();
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+            await api.GetAndSaveEmotes();
+            watch.Stop();
+            System.Windows.Forms.MessageBox.Show(string.Format("Czas wykonania operacji = {0}ms", watch.ElapsedMilliseconds));
+
+            try
+            {
+                
+                //typeof(ChatWindow).GetMethod("SetInLabel").Invoke(this, new [] {"Done"});
+                SetTextInLabel("Done");
+            }
+            catch (TargetInvocationException) { Console.WriteLine("Złapałem ten głupi wyjątek"); }
         }
     }
 }

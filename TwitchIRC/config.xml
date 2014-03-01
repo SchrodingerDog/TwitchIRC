@@ -1,8 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <configuration>
-  <config type = "name"	>dogeircbot</config>
-  <config type = "nick"	>dogeircbot</config>
-  <config type = "port"	>6667</config>
-  <config type = "server"	>irc.twitch.tv</config>
-  <config type = "channel">#brunecia</config>
-  <config type = "oauth"	>oauth:mhxm8ndsgf9infh6uu49xfnk1nz6nxd</config>
+  <name>dogeircbot</name>
+  <nick>dogeircbot</nick>
+  <port>6667</port>
+  <server>irc.twitch.tv</server>
+  <channel>#brunecia</channel>
+  <oauth>oauth:mhxm8ndsgf9infh6uu49xfnk1nz6nxd</oauth>
+  <sub>7</sub>
+  <global>30</global>
 </configuration>

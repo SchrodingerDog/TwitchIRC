@@ -76,6 +76,7 @@
     <Compile Include="ChatWindow.Designer.cs">
       <DependentUpon>ChatWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="DraggableControl.cs" />
     <Compile Include="IRCBot.cs" />
     <Compile Include="IRCConfig.cs" />
     <Compile Include="Program.cs" />

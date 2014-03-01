@@ -26,10 +26,10 @@ namespace TwitchIRC
         {
             XElement root = XElement.Load(path);
             //IRCConfig config = new IRCConfig();
-            IEnumerable<XElement> elements = from el in root.Elements("config") where (string)el.Attribute("type") != "" select el;
+            IEnumerable<XElement> elements = from el in root.Elements() select el;
             foreach (XElement el in elements)
             {
-                c.Data[el.Attribute("type").Value] = el.Value;
+                c.Data[el.Name.LocalName] = el.Value;
             }
             return c;
         }
@@ -40,12 +40,15 @@ namespace TwitchIRC
     public class IRCConfig : ConfigBase
     {
         private Dictionary<string, string> _d = new Dictionary<string, string>{
-        { "server", null },
-        { "port", null },
-        { "nick", null },
-        { "name", null },
-        { "oauth", null },
-        { "channel", null }};
+            { "server", null },
+            { "port", null },
+            { "nick", null },
+            { "name", null },
+            { "oauth", null },
+            { "channel", null },
+            { "sub", null }, 
+            { "global", null }
+        };
         /// <summary>
         /// 
         /// </summary>

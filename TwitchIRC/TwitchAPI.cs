@@ -120,6 +120,14 @@ namespace TwitchIRC
             XElement toAdd = null;
             try
             {
+                //StringBuilder b = new StringBuilder();
+                //b.Append("<emote>")
+                //    .Append("<src>").Append(path + name).Append("</src>")
+                //    .Append("<subonly>").Append(subscriberonly.ToString()).Append("</subonly>")
+                //    .Append("<channel>").Append(channel).Append("</channel>")
+                //    .Append("<today>").Append(DateTime.Now).Append("</today>")
+                //.Append("</emote>");
+                //toAdd = XElement.Parse(b.ToString());
                 toAdd = XElement.Parse(String.Format("<emote> <src> {0} </src> <subonly> {1} </subonly> <channel> {2} </channel> <today> {3} </today> </emote>", path + name, subscriberonly, channel, DateTime.Now));
 
             }
@@ -127,11 +135,12 @@ namespace TwitchIRC
             {
                 Console.WriteLine(ex.StackTrace);
             }
-            if (!CheckExistance(toAdd))
+            var xml = XElement.Load("emoticons/eConfig.xml");
+            if (!CheckExistance(toAdd, xml))
             {
                 pendingChanges.Add(toAdd);
             }
-            if (CheckNeeding(toAdd) || !File.Exists(path+name))
+            if (CheckNeeding(toAdd) || !File.Exists(path + name))
             {
                 img.Save(path + name, ImageFormat.Png);
             }
@@ -144,58 +153,78 @@ namespace TwitchIRC
             var date_date = DateTime.Parse(date);
             if (sub)
             {
-                if (DateTime.Now >= date_date.AddDays(30))
+                if (DateTime.Now >= date_date.AddDays(int.Parse(config.Data["sub"])))
                 {
                     return true;
                 }
             }
             else
             {
-                if (DateTime.Now >= date_date.AddDays(60))
+                if (DateTime.Now >= date_date.AddDays(int.Parse(config.Data["global"])))
                 {
                     return true;
-                } 
+                }
             }
             return false;
         }
 
-        private bool CheckExistance(XElement toAdd)
+        private bool CheckExistance(XElement toAdd, XElement src)
         {
-            var xml = XElement.Load("emoticons/eConfig.xml");
-            var element = from child in xml.Elements() where child.Element("src").Value == toAdd.Element("src").Value select child;
+            var element = from child in src.Elements() where child.Element("src").Value == toAdd.Element("src").Value select child;
             if (element.Count() > 0) return true;
             return false;
         }
         /// <summary>
         /// Połączenie GetImageFromUrlAsync i SaveImage
         /// </summary>
-        public void GetAndSaveEmotes()
+        public async Task GetAndSaveEmotes()
         {
-            GetEmotesAsync(config.Data["channel"].Remove(0, 1)).ContinueWith(t =>
+            var result = await GetEmotesAsync(config.Data["channel"].Remove(0, 1));
+            foreach (var item in result["emoticons"])
             {
-                foreach (var item in t.Result["emoticons"])
-                {
-                    new System.Threading.Thread(() =>
-                    {
-                        string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/") + 1);
-                        GetImageFromUrlAsync(item["url"].ToString()).ContinueWith((r =>
-                        {
-                            SaveImage(r.Result, name, bool.Parse(item["subscriber_only"].ToString()), config.Data["channel"]);
-                        }));
+                string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/") + 1);
+                await GetImageFromUrlAsync(item["url"].ToString()).ContinueWith((t) => {
+                    SaveImage(t.Result, name, bool.Parse(item["subscriber_only"].ToString()), config.Data["channel"]);
+                });
+                
+            }
 
-                    }).Start();
-                }
-            }).ContinueWith(r =>
+            try
             {
-                try
-                {
-                    MakeChanges(pendingChanges);
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine(ex.StackTrace);
-                }
-            });
+                MakeChanges(pendingChanges);
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+            }
+
+
+            //GetEmotesAsync(config.Data["channel"].Remove(0, 1)).ContinueWith(t =>
+            //{
+            //    foreach (var item in t.Result["emoticons"])
+            //    {
+            //        new System.Threading.Thread(() =>
+            //            {
+
+            //                string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/") + 1);
+            //                GetImageFromUrlAsync(item["url"].ToString()).ContinueWith((r =>
+            //                {
+            //                    SaveImage(r.Result, name, bool.Parse(item["subscriber_only"].ToString()), config.Data["channel"]);
+            //                }));
+
+            //            }).Start();
+            //    }
+            //}).ContinueWith(r =>
+            //{
+            //    try
+            //    {
+            //        MakeChanges(pendingChanges);
+            //    }
+            //    catch (IOException ex)
+            //    {
+            //        Console.WriteLine(ex.StackTrace);
+            //    }
+            //});
         }
 
         private void MakeChanges(List<XElement> pendingChanges)
