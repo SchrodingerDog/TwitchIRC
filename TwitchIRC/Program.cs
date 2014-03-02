@@ -14,7 +14,8 @@ namespace TwitchIRC
 {
     class MainProgram
     {
-        [STAThread]
+        //[STAThread]
+        
         static void Main(string[] args)
         {
             Application.EnableVisualStyles();

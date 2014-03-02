@@ -80,12 +80,12 @@ namespace TwitchIRC
             watch.Stop();
             try
             {
-                this.InvokeIfRequired(text => { textBox2.Text = text; }, "Done");
+                this.InvokeIfRequired(text => { TextBox.Text = text; }, "Done");
             }
             catch (TargetInvocationException) { Console.WriteLine("Złapałem ten głupi wyjątek"); }
             this.InvokeIfRequired(img =>
             {
-                this.pictureBox1.Image = img;
+                this.PictureBox.Image = img;
             }, Image.FromFile(@"images.jpg"));
             System.Windows.Forms.MessageBox.Show(string.Format("Czas wykonania operacji = {0}ms", watch.ElapsedMilliseconds));
 

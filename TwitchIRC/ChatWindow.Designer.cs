@@ -10,6 +10,9 @@ namespace TwitchIRC
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
+        public TextBox TextBox { get { return textBox2; } set { textBox2 = value; } }
+        public PictureBox PictureBox { get { return pictureBox1; } set { pictureBox1 = value; } }
+        public ProgressBar ProgressBar { get { return progressBar1; } set { progressBar1 = value; } }
         //public Dictionary<string, Control> c = new Dictionary<string, Control>(); 
         /// <summary>
         /// Clean up any resources being used.
@@ -35,9 +38,9 @@ namespace TwitchIRC
         {
             this.button1 = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -64,13 +67,24 @@ namespace TwitchIRC
             this.panel1.Size = new System.Drawing.Size(475, 353);
             this.panel1.TabIndex = 3;
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.progressBar1.Location = new System.Drawing.Point(12, 143);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(451, 31);
+            this.progressBar1.TabIndex = 2;
+            this.progressBar1.Visible = false;
+            // 
             // pictureBox1
             // 
             this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox1.Location = new System.Drawing.Point(363, 291);
+            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
+            this.pictureBox1.InitialImage = null;
+            this.pictureBox1.Location = new System.Drawing.Point(344, 275);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(100, 50);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBox1.Size = new System.Drawing.Size(119, 66);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
             // 
@@ -82,14 +96,6 @@ namespace TwitchIRC
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(475, 353);
             this.textBox2.TabIndex = 0;
-            // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(56, 161);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(364, 31);
-            this.progressBar1.TabIndex = 2;
-            this.progressBar1.Visible = false;
             // 
             // ChatWindow
             // 
@@ -111,8 +117,8 @@ namespace TwitchIRC
 
         private Button button1;
         private Panel panel1;
-        public TextBox textBox2;
-        public PictureBox pictureBox1;
-        public ProgressBar progressBar1;
+        private TextBox textBox2;
+        private PictureBox pictureBox1;
+        private ProgressBar progressBar1;
     }
 }

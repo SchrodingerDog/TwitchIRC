@@ -121,23 +121,26 @@ namespace TwitchIRC
         /// <param name="name">nazwa pod którą ma być obraz zapisany</param>
         /// <param name="subscriberonly">Określa czy emotikon jest tylko dla subskrybentów i ma być umieszczony w folderze kanału</param>
         /// <param name="channel">Kanał dla którego ten emotikon istnieje</param>
-        public void SaveImage(Image img, string name, bool subscriberonly, string channel = "")
+        public void SaveImage(Image img, string name, bool subscriberonly, string regex, string channel = "")
         {
             string path = "emoticons/";
+            string subPath = path + channel.Substring(1) + "/";
             if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
             if (!File.Exists(path + "eConfig.xml")) { XDocument.Parse("<emotes></emotes>").Save(path + "eConfig.xml", SaveOptions.None); }
             XElement toAdd = null;
             try
             {
-                //StringBuilder b = new StringBuilder();
-                //b.Append("<emote>")
-                //    .Append("<src>").Append(path + name).Append("</src>")
-                //    .Append("<subonly>").Append(subscriberonly.ToString()).Append("</subonly>")
-                //    .Append("<channel>").Append(channel).Append("</channel>")
-                //    .Append("<today>").Append(DateTime.Now).Append("</today>")
-                //.Append("</emote>");
-                //toAdd = XElement.Parse(b.ToString());
-                toAdd = XElement.Parse(String.Format("<emote> <src> {0} </src> <subonly> {1} </subonly> <channel> {2} </channel> <today> {3} </today> </emote>", path + name, subscriberonly, channel, DateTime.Now));
+                StringBuilder b = new StringBuilder();
+                b.Append("<emote>")
+                    .Append("<src>").Append(path + name).Append("</src>")
+                    .Append("<subonly>").Append(subscriberonly.ToString()).Append("</subonly>")
+                    .Append("<channel>").Append(subscriberonly?channel:"").Append("</channel>")
+                    .Append("<today>").Append(DateTime.Now).Append("</today>")
+                    .Append("<regex>").Append(regex.Replace("\\", "")).Append("</regex>")
+                .Append("</emote>");
+                toAdd = XElement.Parse(b.ToString());
+                
+                //toAdd = XElement.Parse(String.Format("<emote> <src> {0} </src> <subonly> {1} </subonly> <channel> {2} </channel> <today> {3} </today> <regex> {4} </regex> </emote>", name, subscriberonly, subscriberonly ? channel : "", DateTime.Now, regex));
 
             }
             catch (XmlException ex)
@@ -149,10 +152,35 @@ namespace TwitchIRC
             {
                 pendingChanges.Add(toAdd);
             }
-            if (CheckNeeding(toAdd) || !File.Exists(path + name))
+
+            if (subscriberonly)
             {
-                img.Save(path + name, ImageFormat.Png);
+                if (!Directory.Exists(subPath))
+                {
+                    Directory.CreateDirectory(subPath);
+                    if (CheckNeeding(toAdd) || !File.Exists(subPath + name))
+                    {
+                        img.Save(subPath + name, ImageFormat.Png);
+                    }
+                }
+                else
+                {
+                    if (CheckNeeding(toAdd) || !File.Exists(subPath + name))
+                    {
+                        img.Save(subPath + name, ImageFormat.Png);
+                    }
+                }
+
             }
+            else
+            {
+                if (CheckNeeding(toAdd) || !File.Exists(path + name))
+                {
+                    img.Save(path + name, ImageFormat.Png);
+                }
+            }
+
+
         }
 
         private bool CheckNeeding(XElement toAdd)
@@ -198,12 +226,13 @@ namespace TwitchIRC
                 chatWindow.InvokeIfRequired(text =>
                 {
                     //chatWindow.textBox2.Text += (text + "\n");
-                    chatWindow.progressBar1.Value++;
+                    chatWindow.ProgressBar.Value++;
                 }, name);
-                await GetImageFromUrlAsync(item["url"].ToString()).ContinueWith((t) => {
-                    SaveImage(t.Result, name, bool.Parse(item["subscriber_only"].ToString()), config.Data["channel"]);
+                await GetImageFromUrlAsync(item["url"].ToString()).ContinueWith((t) =>
+                {
+                    SaveImage(t.Result, name, bool.Parse(item["subscriber_only"].ToString()), item["regex"].ToString(), config.Data["channel"]);
                 });
-                
+
             }
 
             try
@@ -212,7 +241,7 @@ namespace TwitchIRC
                 chatWindow.InvokeIfRequired(t =>
                 {
                     //chatWindow.textBox2.Text += (text + "\n");
-                    chatWindow.progressBar1.Visible = false;
+                    chatWindow.ProgressBar.Visible = false;
                 }, 0);
             }
             catch (IOException ex)
@@ -226,7 +255,7 @@ namespace TwitchIRC
         {
             chatWindow.InvokeIfRequired(c =>
             {
-                var pb = chatWindow.progressBar1;
+                var pb = chatWindow.ProgressBar;
                 pb.Maximum = c;
                 pb.Visible = true;
                 pb.Value = 0;
@@ -238,7 +267,7 @@ namespace TwitchIRC
             XElement xml = XElement.Load("emoticons/eConfig.xml", LoadOptions.None);
             foreach (var item in pendingChanges)
             {
-                xml.Add(item);
+                xml.AddFirst(item);
             }
             xml.Save("emoticons/eConfig.xml", SaveOptions.None);
         }
@@ -249,4 +278,3 @@ namespace TwitchIRC
 //2.Jakieś fajne UI
 //3.Wybór channela
 //4.Okno konfiguracji
-//5.Może jakaś elastyczna funkcja do tych invoke'ów
