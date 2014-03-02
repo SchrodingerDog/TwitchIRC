@@ -14,8 +14,10 @@ namespace TwitchIRC
     class IRCBot : IDisposable
     {
         TcpClient IRCConnection = null;
+        bool Running = true;
         bool Joined = false;
         bool Debug = false;
+        bool IsDisposed = false;
         public bool JSONWindow = true;
         IRCConfig config;
         NetworkStream ns = null;
@@ -73,10 +75,9 @@ namespace TwitchIRC
         private void IRCWork()
         {
             while (!Joined) ;
-            bool running = true;
             SendData("PRIVMSG", "" + config.Data["channel"] + " :Siemanko wszystkim, DogeIRCBot wchodzi na czat!");
             string data;
-            while (running)
+            while (Running)
             {
                 data = sr.ReadLine();
                 if (Debug) Console.WriteLine(data);
@@ -153,7 +154,7 @@ namespace TwitchIRC
                     {
                         int code;
                         int.TryParse(cmd, out code);
-                        if (Debug&&code!=353)
+                        if (Debug && code != 353)
                         {
                             Console.ForegroundColor = ConsoleColor.DarkGray;
                             Console.WriteLine("Wywołano kod {0} do cmd: {1}", code, cmd);
@@ -174,8 +175,8 @@ namespace TwitchIRC
                     break;
             }
         }
-        
-        private void WriteMessage(string message, string name="")
+
+        private void WriteMessage(string message, string name = "")
         {
             //gFunc["add"](message, name);
         }
@@ -209,11 +210,28 @@ namespace TwitchIRC
 
         public void Dispose()
         {
-            if(WorkThread != null)WorkThread.Abort();
-            if (ns != null) ns.Close();
-            if (sr != null) sr.Close();
-            if (sw != null) sw.Close();
-            if (IRCConnection != null) IRCConnection.Close();
+            Dispose(true);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!IsDisposed)
+            {
+                if (disposing)
+                {
+                    Running = false;
+                }
+                if (WorkThread != null) WorkThread.Abort();
+                if (ns != null) ns.Close();
+                if (sr != null) sr.Close();
+                if (sw != null) sw.Close();
+                if (IRCConnection != null) IRCConnection.Close();
+            }
+            IsDisposed = true;
+        }
+        ~IRCBot()
+        {
+            Dispose(false);
         }
     }
 }

@@ -50,9 +50,9 @@ namespace TwitchIRC
             this.button1.Dock = System.Windows.Forms.DockStyle.Top;
             this.button1.Location = new System.Drawing.Point(0, 0);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(475, 23);
+            this.button1.Size = new System.Drawing.Size(475, 58);
             this.button1.TabIndex = 1;
-            this.button1.Text = "button1";
+            this.button1.Text = "Pobierz emotikony";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -62,15 +62,15 @@ namespace TwitchIRC
             this.panel1.Controls.Add(this.pictureBox1);
             this.panel1.Controls.Add(this.textBox2);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 23);
+            this.panel1.Location = new System.Drawing.Point(0, 58);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(475, 353);
+            this.panel1.Size = new System.Drawing.Size(475, 318);
             this.panel1.TabIndex = 3;
             // 
             // progressBar1
             // 
             this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar1.Location = new System.Drawing.Point(12, 143);
+            this.progressBar1.Location = new System.Drawing.Point(12, 126);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(451, 31);
             this.progressBar1.TabIndex = 2;
@@ -81,7 +81,7 @@ namespace TwitchIRC
             this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
             this.pictureBox1.InitialImage = null;
-            this.pictureBox1.Location = new System.Drawing.Point(344, 275);
+            this.pictureBox1.Location = new System.Drawing.Point(344, 240);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(119, 66);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -94,7 +94,7 @@ namespace TwitchIRC
             this.textBox2.Location = new System.Drawing.Point(0, 0);
             this.textBox2.Multiline = true;
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(475, 353);
+            this.textBox2.Size = new System.Drawing.Size(475, 318);
             this.textBox2.TabIndex = 0;
             // 
             // ChatWindow

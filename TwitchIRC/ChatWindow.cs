@@ -21,7 +21,6 @@ namespace TwitchIRC
     {
         IRCBot bot;
         TwitchAPI api;
-
         /// <summary>
         /// 
         /// </summary>
@@ -37,7 +36,7 @@ namespace TwitchIRC
             api = new TwitchAPI(config, this);
             InitializeComponent();
             //this.pictureBox1.Draggable(true);
-            bot.Connect();
+            //bot.Connect();
         }
         /// <summary>
         /// 

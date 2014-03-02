@@ -48,7 +48,17 @@ namespace TwitchIRC
             {
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.twitchtv.v3+json"));
                 HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Post, "relativeAddress");
-                Task<string> response = client.GetStringAsync(link);
+                Task<string> response = null ;
+                try
+                {
+                    response = client.GetStringAsync(link);
+
+                }
+                catch (HttpRequestException e )
+                {
+
+                    Console.Write(e.Message);
+                }
                 string responseBody = await response;
                 return JObject.Parse(responseBody);
             }
@@ -126,28 +136,19 @@ namespace TwitchIRC
             string path = "emoticons/";
             string subPath = path + channel.Substring(1) + "/";
             if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
-            if (!File.Exists(path + "eConfig.xml")) { XDocument.Parse("<emotes></emotes>").Save(path + "eConfig.xml", SaveOptions.None); }
+            if (!File.Exists(path + "eConfig.xml")) { XElement.Parse("<emotes></emotes>").Save(path + "eConfig.xml", SaveOptions.None); }
             XElement toAdd = null;
-            try
-            {
-                StringBuilder b = new StringBuilder();
-                b.Append("<emote>")
-                    .Append("<src>").Append(path + name).Append("</src>")
-                    .Append("<subonly>").Append(subscriberonly.ToString()).Append("</subonly>")
-                    .Append("<channel>").Append(subscriberonly?channel:"").Append("</channel>")
-                    .Append("<today>").Append(DateTime.Now).Append("</today>")
-                    .Append("<regex>").Append(regex.Replace("\\", "")).Append("</regex>")
-                .Append("</emote>");
-                toAdd = XElement.Parse(b.ToString());
-                
-                //toAdd = XElement.Parse(String.Format("<emote> <src> {0} </src> <subonly> {1} </subonly> <channel> {2} </channel> <today> {3} </today> <regex> {4} </regex> </emote>", name, subscriberonly, subscriberonly ? channel : "", DateTime.Now, regex));
+            StringBuilder b = new StringBuilder();
+            b.Append("<emote>")
+                .Append("<src>").Append(path + name).Append("</src>")
+                .Append("<subonly>").Append(subscriberonly.ToString()).Append("</subonly>")
+                .Append("<channel>").Append(subscriberonly ? channel : "").Append("</channel>")
+                .Append("<today>").Append(DateTime.Now).Append("</today>")
+                .Append("<regex>").Append(regex.Replace("\\", "")).Append("</regex>")
+            .Append("</emote>");
+            toAdd = XElement.Parse(b.ToString());
 
-            }
-            catch (XmlException ex)
-            {
-                Console.WriteLine(ex.StackTrace);
-            }
-            var xml = XElement.Load("emoticons/eConfig.xml");
+            var xml = XElement.Load(@"emoticons/eConfig.xml");
             if (!CheckExistance(toAdd, xml))
             {
                 pendingChanges.Add(toAdd);
@@ -177,6 +178,7 @@ namespace TwitchIRC
                 if (CheckNeeding(toAdd) || !File.Exists(path + name))
                 {
                     img.Save(path + name, ImageFormat.Png);
+                    
                 }
             }
 
@@ -207,8 +209,10 @@ namespace TwitchIRC
 
         private bool CheckExistance(XElement toAdd, XElement src)
         {
-            var element = from child in src.Elements() where child.Element("src").Value == toAdd.Element("src").Value select child;
-            if (element.Count() > 0) return true;
+            //var element = from child in src.Elements() where child == toAdd select child;
+            IEnumerable<XElement> e = src.Elements().Where(param => { return (param.Element("src").Value == toAdd.Element("src").Value 
+                && param.Element("regex").Value == toAdd.Element("regex").Value); });
+            if (e.Any()) return true;
             return false;
         }
         /// <summary>
@@ -216,38 +220,31 @@ namespace TwitchIRC
         /// </summary>
         public async Task GetAndSaveEmotes()
         {
-            var result = await GetEmotesAsync(config.Data["channel"].Remove(0, 1));
-            var emotes = result["emoticons"];
-            var eCount = emotes.Count();
+            JObject result = await GetEmotesAsync(config.Data["channel"].Remove(0, 1));
+            JToken emotes = result["emoticons"];
+            int eCount = emotes.Count();
             PrepareProgressBar(eCount);
             foreach (var item in emotes)
             {
-                string name = item["url"].ToString().Substring(item["url"].ToString().LastIndexOf("/") + 1);
+                JToken url = item["url"];
+                string urlS = url.Value<string>();
+                string name = urlS.Substring(urlS.LastIndexOf("/") + 1);
                 chatWindow.InvokeIfRequired(text =>
                 {
                     //chatWindow.textBox2.Text += (text + "\n");
                     chatWindow.ProgressBar.Value++;
                 }, name);
-                await GetImageFromUrlAsync(item["url"].ToString()).ContinueWith((t) =>
+                await GetImageFromUrlAsync(urlS).ContinueWith((t) =>
                 {
                     SaveImage(t.Result, name, bool.Parse(item["subscriber_only"].ToString()), item["regex"].ToString(), config.Data["channel"]);
                 });
-
             }
 
-            try
+            MakeChanges(pendingChanges);
+            chatWindow.InvokeIfRequired(t =>
             {
-                MakeChanges(pendingChanges);
-                chatWindow.InvokeIfRequired(t =>
-                {
-                    //chatWindow.textBox2.Text += (text + "\n");
-                    chatWindow.ProgressBar.Visible = false;
-                }, 0);
-            }
-            catch (IOException ex)
-            {
-                Console.WriteLine(ex.StackTrace);
-            }
+                chatWindow.ProgressBar.Visible = false;
+            }, 0);
 
         }
 
